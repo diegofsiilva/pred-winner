@@ -1,5 +1,5 @@
 """Modelos que estimam P(PT vence no município)."""
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -26,4 +26,10 @@ def logistic():
 def random_forest():
     return SklearnClassifier(
         RandomForestClassifier(n_estimators=300, min_samples_leaf=5, n_jobs=-1, random_state=0)
+    )
+
+
+def gradient_boosting():
+    return SklearnClassifier(
+        HistGradientBoostingClassifier(max_iter=300, learning_rate=0.05, random_state=0)
     )
