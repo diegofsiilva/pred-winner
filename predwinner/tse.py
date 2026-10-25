@@ -39,3 +39,7 @@ def runoff_results(year: int) -> pd.DataFrame:
     out["pt_venceu"] = (out.share_pt > 0.5).astype(int)
     out["ano"] = year
     return out
+
+
+def tse_to_ibge() -> pd.DataFrame:
+    return pd.read_csv(RAW_DIR / "municipios_tse_ibge.csv", usecols=["codigo_tse", "codigo_ibge", "capital"])
