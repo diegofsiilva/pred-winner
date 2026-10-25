@@ -60,3 +60,31 @@ class Fundamentals:
 
 def fundamentals():
     return Fundamentals()
+
+
+class Ensemble:
+    """Média simples das probabilidades dos modelos componentes."""
+
+    def __init__(self, members):
+        self.members = members
+
+    def fit(self, df):
+        for m in self.members:
+            m.fit(df)
+        return self
+
+    def predict_proba(self, df):
+        return np.mean([m.predict_proba(df) for m in self.members], axis=0)
+
+
+def ensemble():
+    return Ensemble([logistic(), random_forest(), gradient_boosting(), fundamentals()])
+
+
+MODELS = {
+    "logistica": logistic,
+    "random_forest": random_forest,
+    "gradient_boosting": gradient_boosting,
+    "fundamentals": fundamentals,
+    "ensemble": ensemble,
+}
