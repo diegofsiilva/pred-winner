@@ -24,3 +24,30 @@ def add_lagged_vote(df: pd.DataFrame) -> pd.DataFrame:
     prev["ano"] += 4
     prev = prev.rename(columns={"share_pt": "share_pt_ant"})
     return df.merge(prev, on=["codigo_ibge", "ano"], how="inner")
+
+
+def economic_features(election_years: list[int]) -> pd.DataFrame:
+    """Indicadores do ano anterior à eleição e crescimento do PIB per capita em 3 anos.
+
+    O crescimento é medido relativo ao do país, o que remove a inflação
+    (o PIB municipal só existe a preços correntes).
+    """
+    periods = sorted({y - 1 for y in election_years} | {y - 4 for y in election_years})
+    ind = load_indicators(periods)
+    ind["pib_pc"] = ind.pib / ind.populacao
+    national = ind.groupby("ano").pib.sum() / ind.groupby("ano").populacao.sum()
+
+    cur = ind.assign(ano=ind.ano + 1)
+    base = ind[["codigo_ibge", "ano", "pib_pc"]].assign(ano=ind.ano + 4)
+    df = cur.merge(base, on=["codigo_ibge", "ano"], suffixes=("", "_base"))
+    nat_growth = np.log(df.ano.map(lambda a: national[a - 1] / national[a - 4]))
+    df["crescimento_rel"] = np.log(df.pib_pc / df.pib_pc_base) - nat_growth
+    df["log_pib_pc"] = np.log(df.pib_pc)
+    df["log_pop"] = np.log(df.populacao)
+    # Valor adicionado negativo em alguns municípios gera participações fora de [0, 100].
+    shares = ["share_agro", "share_industria", "share_adm_publica"]
+    df[shares] = df[shares].clip(0, 100)
+    df["crescimento_rel"] = df.crescimento_rel.clip(-1, 1)
+    cols = ["codigo_ibge", "ano", "log_pib_pc", "log_pop", "crescimento_rel",
+            "share_agro", "share_industria", "share_adm_publica"]
+    return df[df.ano.isin(election_years)][cols]
