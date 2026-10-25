@@ -81,7 +81,18 @@ def ensemble():
     return Ensemble([logistic(), random_forest(), gradient_boosting(), fundamentals()])
 
 
+class Persistence:
+    """Baseline: o município repete o resultado da eleição anterior."""
+
+    def fit(self, df):
+        return self
+
+    def predict_proba(self, df):
+        return (df.share_pt_ant > 0.5).astype(float).to_numpy()
+
+
 MODELS = {
+    "persistencia": Persistence,
     "logistica": logistic,
     "random_forest": random_forest,
     "gradient_boosting": gradient_boosting,
