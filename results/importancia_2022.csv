@@ -1,0 +1,17 @@
+feature,importancia_auc
+share_pt_ant,0.0805
+desvio_pt_ant,0.0510
+regiao_Nordeste,0.0368
+log_pib_pc,0.0073
+share_adm_publica,0.0062
+regiao_Sul,0.0010
+regiao_Norte,0.0006
+share_industria,0.0005
+crescimento_rel,0.0003
+regiao_Centro-Oeste,0.0002
+pt_incumbente,0.0000
+crescimento_x_incumbente,0.0000
+capital,-0.0000
+log_pop,-0.0002
+share_agro,-0.0004
+regiao_Sudeste,-0.0017
