@@ -26,3 +26,16 @@ def read_president_runoff(year: int) -> pd.DataFrame:
             }
         )
     )
+
+
+def runoff_results(year: int) -> pd.DataFrame:
+    """Uma linha por município: votos válidos, votos do PT, share e vencedor."""
+    df = read_president_runoff(year)
+    df["votos_pt"] = df.votos.where(df.partido == "PT", 0)
+    out = df.groupby(["uf", "codigo_tse"], as_index=False).agg(
+        votos_validos=("votos", "sum"), votos_pt=("votos_pt", "sum")
+    )
+    out["share_pt"] = out.votos_pt / out.votos_validos
+    out["pt_venceu"] = (out.share_pt > 0.5).astype(int)
+    out["ano"] = year
+    return out
