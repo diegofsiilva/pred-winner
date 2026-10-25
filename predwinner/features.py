@@ -51,3 +51,25 @@ def economic_features(election_years: list[int]) -> pd.DataFrame:
     cols = ["codigo_ibge", "ano", "log_pib_pc", "log_pop", "crescimento_rel",
             "share_agro", "share_industria", "share_adm_publica"]
     return df[df.ano.isin(election_years)][cols]
+
+
+FEATURES = [
+    "share_pt_ant", "desvio_pt_ant", "log_pib_pc", "log_pop", "crescimento_rel",
+    "share_agro", "share_industria", "share_adm_publica", "capital", "pt_incumbente",
+    "crescimento_x_incumbente",
+] + [f"regiao_{r}" for r in REGIONS.values()]
+
+
+def build_dataset() -> pd.DataFrame:
+    path = PROCESSED_DIR / "dataset.csv"
+    if path.exists():
+        return pd.read_csv(path)
+    df = add_lagged_vote(results_all_years())
+    df = df.merge(economic_features(sorted(df.ano.unique())), on=["codigo_ibge", "ano"])
+    df["pt_incumbente"] = (df.ano.map(INCUMBENT_PARTY) == "PT").astype(int)
+    df["crescimento_x_incumbente"] = df.crescimento_rel * df.pt_incumbente
+    for r in REGIONS.values():
+        df[f"regiao_{r}"] = (df.regiao == r).astype(int)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    return df
